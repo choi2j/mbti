@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/style.css">
+    <title>MBTIfy</title>
+</head>
+
+<body>
+    <div class="wrapper" id="home">
+        <p class="mbtiLogo">MBTI</p>
+        <div class="spotify">
+            <img src="/img/spotify_contrast.svg" alt="spotify">
+        </div>
+        <img src="/img/mbti.svg" alt="logo" class="logoImg">
+        <a onclick="start()" class="start">Let's start!</a>
+    </div>
+
+
+
+    <div class="wrapper gomargin2" id="main" style="display: none;">
+        <p id="title">질문이<br>두 줄이지요</p>
+        <input id="type" type="hidden" value="EI">
+        <div class="progress">
+            <div class="progress-bar" style="width: 0;">
+                <div class="progress-bar" role="progressbar" style="width: calc(100/12*1%)" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                    <img src="/img/progress.svg" alt="dot" class="progressView"></div>
+            </div>
+        </div>
+        <button id="A" class="answer">답은?</button>
+        <button id="B" class="answer">두 개지요</button>
+    </div>
+    <input type="hidden" id="EI" value="0">
+    <input type="hidden" id="SN" value="0">
+    <input type="hidden" id="TF" value="0">
+    <input type="hidden" id="JP" value="0">
+    <div class="result-wrapper gomargin" style="display: none;">
+        <div class="spotify">
+            <img src="/img/spotify.svg" alt="spotify">
+        </div>
+        <div class="result">
+            <div class="container">
+                <p class="texts" id="texts">~~한 음악</p>
+                <img class="resultIllust"></img>
+            </div>
+            <div class="container">
+                <p class="texts">추천 플레이리스트</p>
+                <div class="playlist">
+                    <div class="playlist_div" style="height: 100%;"></div>
+                </div>
+                <!-- 여기가 플레이리스트 내용 들어갈 곳 -->
+            </div>
+        </div>
+    </div>
+</body>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+<script src="/js/addLength.js"></script>
+<script>
+    num = 1
+
+    var q = {
+        1: {
+            "title": "학업으로 지친 당신에게 주말이 찾아왔다<br>당신이 주말을 보내는 방법은?",
+            "type": "EI",
+            "A": "늦잠 자고 집에서 나만의 시간을 갖는다",
+            "B": "친구들에게 연락해 핫플레이스에 방문한다"
+        },
+        2: {
+            "title": "당신은 주말에 프리한 상황. 당신의 애인이 이번주에<br>롯데월드에 가자고 한다.",
+            "type": "EI",
+            "A": "너무너무 좋아! 우리 놀이기구 10개 타고오자!",
+            "B": "딱히 할건 없지만 멀고 사람 많아서 별로야..<br>예쁜 카페 가는건 어때?"
+        },
+        3: {
+            "title": "회장선거에 나가는 당신<br>",
+            "type": "EI",
+            "A": "제가 우리반을 대표하는<br>자랑스런 우리반 회장이 되겠습니다!",
+            "B": "저는 소외당하는 친구들이 없게 우리반<br>사소한 것들을  다 신경쓰는 회장이 되겠습니다."
+        },
+        4: {
+            "title": "어제 반 친구와 싸우고 잠이 들었다. <br>등교하면서 당신은 무슨 생각을 할까?",
+            "type": "SN",
+            "A": " 솔직히 난 좀 억울해. 근데 걔가 손절하면?<br>인스타 차단한거 아니야?",
+            "B": "친구가 많이 화났겠지? <br>아냐 오히려 괜찮을 수..도.."
+        },
+        5: {
+            "title": "괴상한 꿈을 꾸었다. 일어나서 당신은?",
+            "type": "SN",
+            "A": "와 이건 대박이야! <br>까먹지 않게 되짚어 본다",
+            "B": "뭐 이런 괴상한 꿈을 꾸냐.. 지금 몇시지?"
+        },
+        6: {
+            "title": "엄청 무섭게 생긴 나무를 봤다.<br>당신의 반응은?",
+            "type": "TF",
+            "A": "와 움직일거같아! 이거 나무 맞아?",
+            "B": "오.. 무섭게 생겼다"
+        },
+        7: {
+            "title": "열심히 준비한 중간고사를 망쳤다.<br>집에가서 당신의 반응은?",
+            "type": "TF",
+            "A": "에잇 공부했는데 망해버렸네",
+            "B": "엄마아!!! 나 시험 망했어ㅠㅠ <br>앞으로 어떡하지ㅠㅠ😭"
+        },
+        8: {
+            "title": "사랑하는 애인에게 이별통보를 받은 당신은?",
+            "type": "TF",
+            "A": "조용히 슬퍼한다. <br>평소와 같이 생활하지만 <br>우울한 마음을 감출 수 없다",
+            "B": "눈물부터 나온다. <br>주변사람들에게 위로받고 싶다"
+        },
+        9: {
+            "title": "짜잔~ 꽃 다발을 선물받은 당신의 기분은?",
+            "type": "SN",
+            "A": " 꽃 너무 이쁘다!! 고마워 집에다가 잘 놔둔다",
+            "B": "너무 감동이야 꽃 정말 예쁘다!! <br>꽃을 보며 하루종일 행복해 한다"
+        },
+        10: {
+            "title": "친구들과 토요일에 만나서 놀기로 한<br>당신의 금요일 밤은?",
+            "type": "JP",
+            "A": "내일 입을 옷을 정하고 가기로 한 곳을 <br>미리 검색하며 잠이 든다",
+            "B": "아싸 불금!!! <br>내일은 친구들 만나서 재밌게 놀아야징!"
+        },
+        11: {
+            "title": "오늘은 6월 1일 용돈을 받았다!",
+            "type": "JP",
+            "A": "친구들 생일을 살피고 내가 쓸 돈을 정해본다",
+            "B": "오늘은 먹고싶은거 다 먹어야지!<br>돈을 흥청망청 쓴다!"
+        },
+        12: {
+            "title": "일주일동안 해야하는 과제가 주어졌다",
+            "type": "JP",
+            "A": "일주일이면 대충 이만큼씩 하면 되겠다!",
+            "B": "일주일? 한참 남았네! 아 과제하기 싫다..."
+        }
+    }
+    var result = {
+
+        "ENFJ": {
+            "mbti": "ENFJ",
+            "name": "<strong>바티스트</strong>",
+            "img": "/img/1gunjeon.svg",
+            "script": '<I>"내가 있는 한 아무도 죽지 않는다."</I>',
+            "explain": "직관력이 뛰어나며<br>화합을 추구하는 성격이에요"
+        },
+        "ENFP": {
+            "mbti": "ENFP",
+            "name": "<strong>트레이서</strong>",
+            "img": "/img/3mania.svg",
+            "script": '<I>"안녕, 친구들!<br>해결사가 왔어!"</I>',
+            "explain": "활기가 넘치며 재능이 많고<br>상상력이 풍부한 성격이에요"
+        },
+        "ENTJ": {
+            "mbti": "ENTJ",
+            "name": "<strong>둠피스트</strong>",
+            "img": "/img/3mania.svg",
+            "script": '<I>"갈등만이 우리를 진화시킨다."</I>',
+            "explain": "자기 주장이 강하면서 단호하고<br>지도력과 통솔력이 있는 성격이에요"
+        },
+        "ENTP": {
+            "mbti": "ENTP",
+            "name": "<strong>솜브라</strong>",
+            "img": "/img/2gamsung.svg",
+            "script": '<I>"무엇이든, 누구든,<br>해킹할 수 있어."</I>',
+            "explain": "새로운 문제나 복잡한 문제에<br>해결 능력이 뛰어난 성격이에요"
+        },
+        "ESFJ": {
+            "mbti": "ESFJ",
+            "name": "<strong>라인하르트</strong>",
+            "img": "/img/1gunjeon.svg",
+            "script": '<I>"두려워 말게.<br>내가 그대들의 방패라네!"</I>',
+            "explain": "타고난 협력자로서 동료애가 많고<br>친절하며 능동적인 구성원이에요"
+        },
+        "ESFP": {
+            "mbti": "ESFP",
+            "name": "<strong>디바</strong>",
+            "img": "/img/4daejung.svg",
+            "script": '<I>"게임을 하면 이겨야지!"</I>',
+            "explain": "사교적이고 활동적이며 수용력이 강하고<br>친절하며 낙천적인 성격이에요"
+        },
+        "ESTJ": {
+            "mbti": "ESTJ",
+            "name": "<strong>자리야</strong>",
+            "img": "/img/1gunjeon.svg",
+            "script": '<I>"함께일 때, 우린 강합니다."</I>',
+            "explain": "실질적이고 현실 감각이 뛰어나며<br>일을 조직하고 계획하여 추진시키는 능력이 있어요"
+        },
+        "ESTP": {
+            "mbti": "ESTP",
+            "name": "<strong>메르시</strong>",
+            "img": "/img/4daejung.svg",
+            "script": '<I>"영웅은 죽지 않아요."</I>',
+            "explain": "개방적이고 사람이나 사물에 대한<br>선입견이 별로 없어요"
+        },
+        "INFJ": {
+            "mbti": "INFJ",
+            "name": "<strong>젠야타</strong>",
+            "img": "/img/2gamsung.svg",
+            "script": '<I>"가장 큰 적은<br>내면의 적이라오."</I>',
+            "explain": "인내심이 많고 통찰력과 직관력이<br>뛰어나며 화합을 추구합니다"
+        },
+        "INFP": {
+            "mbti": "INFP",
+            "name": "<strong>메이</strong>",
+            "img": "/img/2gamsung.svg",
+            "script": '<I>"이거면 막을 수 있어요."</I>',
+            "explain": "자신이 지향하는 이상에 대해서는<br>정열적인 신념을 지니고 있어요"
+        },
+        "INTJ": {
+            "mbti": "INTJ",
+            "name": "<strong>시메트라</strong>",
+            "img": "/img/3mania.svg",
+            "script": '<I>"인류의 진정한 적은 무질서예요."</I>',
+            "explain": "무엇이든 체계와<br>진행 방식부터 이해하려고 해요"
+        },
+        "INTP": {
+            "mbti": "INTP",
+            "name": "<strong>윈스턴</strong>",
+            "img": "/img/4daejung.svg",
+            "script": '<I>"상상력이야말로<br>발견의 어머니입니다."</I>',
+            "explain": "조용하고 과묵하며 논리와 분석으로<br>문제를 해결하기 좋아해요"
+        },
+        "ISFJ": {
+            "mbti": "ISFJ",
+            "name": "<strong>아나</strong>",
+            "img": "/img/4daejung.svg",
+            "script": '<I>"신념을 위한 싸움을 멈추지 마라."</I>',
+            "explain": "조용하고 차분하며 따뜻하고 친근하고<br>책임감과 인내력 또한 매우 강해요"
+        },
+        "ISFP": {
+            "mbti": "ISFP",
+            "name": "<strong>겐지</strong>",
+            "img": "/img/2gamsung.svg",
+            "script": '<I>"겐지가 함께 한다."</I>',
+            "explain": "사람간의 화합을 중요하게 생각하며<br>의견 충돌을 회피하는 성향이에요"
+        },
+        "ISTJ": {
+            "mbti": "ISTJ",
+            "name": "<strong>한조</strong>",
+            "img": "/img/1gunjeon.svg",
+            "script": '<I>"죽음에는 명예가 따르고<br>명예에는 구원이 따른다."</I>',
+            "explain": "실제 사실에 대하여 정확하고 체계적으로 기억하며<br>일 처리에 있어서도 신중하고 책임감이 있어요"
+        },
+        "ISTP": {
+            "mbti": "ISTP",
+            "name": "<strong>맥크리</strong>",
+            "img": "/img/3mania.svg",
+            "script": '<I>"정의는 저절로 실현되지 않아."</I>',
+            "explain": "말이 없으며, 객관적이고 합리적으로<br>인생을 관찰하는 유형이에요"
+        }
+
+
+    }
+</script>
+<script type="text/javascript">
+    function start() {
+        $("#home").hide();
+        $("#main").show();
+        next();
+    }
+
+    $("#A").click(function() {
+        var type = ($("#type").val());
+        console.log(type);
+        var preValue = $("#" + type).val();
+        $("#" + type).val(parseInt(preValue) + 1);
+        next();
+    });
+    $("#B").click(function() {
+        next();
+    });
+
+    function next() {
+        if (num == 13) {
+            $(".wrapper").hide();
+            $(".result-wrapper").show();
+            var mbti = "";
+            ($("#EI").val() < 2) ? mbti = mbti += "I": mbti += "E";
+            ($("#SN").val() < 2) ? mbti = mbti += "N": mbti += "S";
+            ($("#TF").val() < 2) ? mbti = mbti += "F": mbti += "T";
+            ($("#JP").val() < 2) ? mbti = mbti += "P": mbti += "J";
+            $("#img").attr("src", result[mbti]["img"]);
+            $("#mbti").html(result[mbti]["mbti"]);
+            $("#name").html(result[mbti]["name"]);
+            $("#explain").html(result[mbti]["explain"]);
+            $("#script").html(result[mbti]["script"]);
+            $(".resultIllust").attr("src", result[mbti]["img"]);
+            console.log(mbti);
+            var color = result[mbti]["color"]
+            var colors = {
+                "gunjeon": "#4A527E",
+                "gamsung": "#83B9E0",
+                "mania": "#D978AC",
+                "daejung": "#4694DB",
+            }
+            var titles = {
+                "gunjeon": "잔잔한 ",
+                "gamsung": "감성적인 ",
+                "mania": "매니아층 ",
+                "daejung": "대중적인 유행 ",
+            }
+            var playlists = {
+                "gunjeon": "https://open.spotify.com/embed/playlist/37i9dQZF1DX1s9knjP51Oa?utm_source=generator",
+                "gamsung": "https://open.spotify.com/embed/playlist/2hmLDliFT9mW84XHxRUzwx?utm_source=generator",
+                "mania": "https://open.spotify.com/embed/playlist/1cHpN5EvBCfWhFSEEOi1Nt?utm_source=generator",
+                "daejung": "https://open.spotify.com/embed/playlist/6kbzPEHj3uMPRFsR3v6xzE?utm_source=generator",
+            }
+            if (result[mbti]["img"] == "/img/1gunjeon.svg") {
+                color = colors["gunjeon"]
+                title = titles["gunjeon"]
+                playlist = playlists["gunjeon"]
+                console.log(color)
+            } else if (result[mbti]["img"] == "/img/2gamsung.svg") {
+                color = colors["gamsung"]
+                title = titles["gamsung"]
+                playlist = playlists["gamsung"]
+                console.log(color)
+            } else if (result[mbti]["img"] == "/img/3mania.svg") {
+                color = colors["mania"]
+                title = titles["mania"]
+                playlist = playlists["mania"]
+                console.log(color)
+            } else if (result[mbti]["img"] == "/img/4daejung.svg") {
+                color = colors["daejung"]
+                title = titles["daejung"]
+                playlist = playlists["daejung"]
+                console.log(color)
+            }
+            $("#texts").text(title + "음악")
+            $("body").css("background", "" + color + "");
+            $('.playlist_div').html('<iframe style="height:100%;" src="' + playlist + '" width="100%" height="380" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>');
+            console.log('<iframe style="border-radius:12px" src="' + playlist + ' width="100%" height="380" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>')
+                // <iframe style="border-radius:12px src=" https:="" open.spotify.com="" embed="" playlist="" 37i9dqzf1dx1s9knjp51oa?utm_source="generator&quot;" width="100%" height="380" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+                // <iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/2hmLDliFT9mW84XHxRUzwx?utm_source=generator" width="100%" height="380" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+
+        } else {
+            $(".progress-bar").attr("style", 'width: calc(100/12*' + num + '%)');
+            $("#title").html(q[num]["title"]);
+            $("#type").val(q[num]["type"]);
+            $("#A").html(q[num]["A"]);
+            $("#B").html(q[num]["B"]);
+            var a = $(".progress-bar").outerWidth()
+            console.log(a)
+            $(".progress-bar").attr("style", 'width: calc(100/12*' + num + '%)');
+            $(".progressView").attr("style", 'margin-left: ' + a + 'px');
+            num++;
+        }
+    }
+
+    if (window.matchMedia("(max-width: 1px)").matches == true) {
+
+        $(".progressView").attr("style", 'margin-left: ' + a * num + 'px');
+
+    }
+</script>
+
+</html>
